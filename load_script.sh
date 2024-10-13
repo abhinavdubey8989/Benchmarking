@@ -16,6 +16,7 @@ MYSQL_CMD="mysql -u $MYSQL_USER -p $MYSQL_PASS -h $MYSQL_HOST ${MYSQL_DB}"
 
 # number of threads or concurrent-users
 THREADS=1
+STATSD_PORT=8125
 
 send_timer_metric() {
   local metric_prefix=$1
@@ -27,7 +28,7 @@ send_timer_metric() {
 
   # send metric to statsd
   final_metric="${metric_prefix}.${DB_NAME}:${diff_ms}|ms"
-  echo "$final_metric"
+  echo "$final_metric" | nc -w 2 -u ec2_grafana $STATSD_PORT
 }
 
 read_query() {

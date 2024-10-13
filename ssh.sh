@@ -1,33 +1,27 @@
-
-
-
-
 # cmd line args
-TARGET_MACHINE=$1
-EC2_IP=0.0.0.0
+TARGET_HOSTNAME=$1
 
-
-# IP of instances
-EC2_PG=65.2.30.76
-EC2_MYSQL=65.2.30.70
-EC2_TEST_INSTANCE=65.0.80.93
-
-
-# store content of above file (which is an IP) to this variable 
+# pints to /etc/hosts on EC2 machines & this file on local
+HOSTS_FILE=~/Documents/ad/DB-benchmarking/etc_hosts.txt
 PEM_FILE=~/Documents/ad/aws-and-docker/0_secrets/aws_ad89.pem
 
+get_ip_for_ec2_hostname() {
+    local target_ec2_hostname=$1
+    grep "$target_ec2_hostname" "$HOSTS_FILE" | awk '{print $1}'
+}
 
-# get final IPv4
-if [ "$TARGET_MACHINE" = "pg" ] ; then
-    EC2_IP=$EC2_PG
-elif [ "$TARGET_MACHINE" = "mysql" ]; then
-   EC2_IP=$EC2_MYSQL
-else
-    # echo "Invalid 1st arg"
-    # exit 0
-    EC2_IP=$EC2_TEST_INSTANCE
-fi
+main() {
+    IP_ADDRESS=$(get_ip_for_ec2_hostname "$TARGET_HOSTNAME")
 
+    # if no IP found, exit without doing SSH
+    if [ -z "$IP_ADDRESS" ]; then
+        echo "Cannot find IP_ADDRESS corresponsing to 1st arg (TARGET_HOSTNAME)"
+        exit 0
+    fi
 
-# now ssh 
-ssh -i $PEM_FILE ubuntu@$EC2_IP
+    # for valid IP, do SSH
+    echo ssh -i $PEM_FILE ubuntu@$IP_ADDRESS
+    ssh -i $PEM_FILE ubuntu@$IP_ADDRESS
+}
+
+main

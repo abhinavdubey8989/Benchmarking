@@ -1,0 +1,6 @@
+
+
+# put in in /etc/hosts of all EC2 machines
+
+35.154.241.60 ec2_grafana
+13.233.20.33 ec2_postgres

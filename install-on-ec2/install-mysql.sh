@@ -2,7 +2,7 @@
 
 # update & install
 sudo apt update
-sudo apt install mysql-server -y
+sudo apt install -y mysql-server
 
 # check if service status
 sudo systemctl status mysql.service

@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  my_nginx:
+    container_name: my_nginx
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  my_statsd:
+    image: statsd/statsd
+    container_name: my_statsd
+    tty: true
+    ports:
+      - "8125:8125/udp"
+
+
+  my_graphite:
+    image: graphiteapp/graphite-statsd
+    container_name: my_graphite
+    restart: always
+    ports:
+      - "8077:80"
+      - "2003-2004:2003-2004"
+      - "2023-2024:2023-2024"
+
+
+  my_grafana:
+    image: grafana/grafana:7.0.0
+    container_name: my_grafana
+    ports:
+      - "3000:3000" # ui
+    environment:
+        - GF_SECURITY_ADMIN_PASSWORD=password
