@@ -9,10 +9,10 @@ LOAD_DURATION_IN_SECONDS=$2
 
 # MySQL Credentials
 MYSQL_USER="root"
-MYSQL_PASS="password"
-MYSQL_DB="test"
-MYSQL_HOST="localhost"
-MYSQL_CMD="mysql -u $MYSQL_USER -p $MYSQL_PASS -h $MYSQL_HOST ${MYSQL_DB}"
+MYSQL_PASSWORD="new_password"
+MYSQL_DB="ad_sql_db"
+MYSQL_TABLE="students"
+
 
 # number of threads or concurrent-users
 THREADS=1
@@ -32,8 +32,16 @@ send_timer_metric() {
 }
 
 read_query() {
+
   local start_time_ms=$(date +%s%3N)
-  sleep 0.001 #$MYSQL_CMD -e "SELECT * FROM test_table WHERE id = FLOOR(RAND() * 1000) LIMIT 1;"
+
+  # simulate read by sleep
+  # sleep 0.04 
+
+  # read-query using script
+  mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD \
+    -e "SELECT * FROM $MYSQL_DB.$MYSQL_TABLE WHERE id = FLOOR(RAND() * 1000) LIMIT 1;"
+
   local end_time_ms=$(date +%s%3N)
 
   # send metric in background
@@ -43,7 +51,14 @@ read_query() {
 write_query() {
   local send_metric=$1
   local start_time_ms=$(date +%s%3N)
-  sleep 0.04 #$MYSQL_CMD -e "INSERT INTO test_table (name, value) VALUES ('benchmark', RAND());"
+
+  # simulate write by sleep
+  # sleep 0.04 
+
+  # write-query using script
+  mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD \
+    -e "INSERT INTO $MYSQL_DB.$MYSQL_TABLE (name,marks) VALUES (SUBSTRING(MD5(RAND()), 1, 10), RAND());"
+
   local end_time_ms=$(date +%s%3N)
 
   # send metric in background
